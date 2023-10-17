@@ -1,3 +1,4 @@
+// this code may not work in every case because of your connection in different point you must have the proper connection as shwon in the code to run properly .
 #define left A0
 #define center A1
 #define right A2
