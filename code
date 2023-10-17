@@ -1,0 +1,138 @@
+#define left A0
+#define center A1
+#define right A2
+
+// Motor one
+#define ENA 5
+#define IN1 6
+#define IN2 7
+
+// Motor two
+#define ENB 10
+#define IN3 8
+#define IN4 9
+
+// Ultrasonic sensor
+const int triggerPin = 11;
+const int echoPin = 12;
+
+int Speed = 210  ; // Speed of the robot
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(left, INPUT);
+  pinMode(center, INPUT);
+  pinMode(right, INPUT);
+
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENB, OUTPUT);
+
+  pinMode(triggerPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+}
+
+void loop() {
+  bool leftV = digitalRead(left);
+  bool centerV = digitalRead(center);
+  bool rightV = digitalRead(right);
+
+  long distance = getUltrasonicDistance();
+
+  if (distance <= 10) {
+    carStop();
+    Serial.println("Obstacle detected! Stopping the car.");
+    delay(1000); // Delay for 1 second to avoid false detections
+  } else {
+    if (leftV == 1 && centerV == 0 && rightV == 1) {
+      carForward();
+      Serial.println("Line following: Forward");
+    } else if (leftV == 0 && centerV == 0 && rightV == 0) {
+      carStop();
+      Serial.println("Line following: Stop");
+    } else if (leftV == 1 && centerV == 1 && rightV == 1) {
+      carStop();   
+      Serial.println("Line following: Turn left and right");
+    } else if (leftV == 1 && centerV == 1 && rightV == 0) {
+      carTurnRight();
+      Serial.println("Line following: Turn right");
+    } else if (leftV == 0 && centerV == 1 && rightV == 1) {
+      carTurnLeft();
+      Serial.println("Line following: Turn left");
+    } else if (leftV == 1 && centerV == 0 && rightV == 0) {
+      carTurnSharpRight();
+      Serial.println("Line following: Turn sharp right");
+    } else if (leftV == 0 && centerV == 0 && rightV == 1) {
+      carTurnSharpLeft();
+      Serial.println("Line following: Turn sharp left");
+    }
+  }
+}
+
+void carForward() {
+  analogWrite(ENA, (Speed=255);
+  analogWrite(ENB, Speed=255);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);  
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void carTurnRight() {
+  analogWrite(ENA, Speed-20);
+  analogWrite(ENB, Speed-20);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+
+void carTurnLeft() {
+  analogWrite(ENA, Speed-20);
+  analogWrite(ENB, Speed-20);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void carTurnSharpLeft() {
+  analogWrite(ENA, Speed-20);
+  analogWrite(ENB, Speed);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void carTurnSharpRight() {
+  analogWrite(ENA, Speed);
+  analogWrite(ENB, Speed-20);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void carStop() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+
+long getUltrasonicDistance() {
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+
+  long duration = pulseIn(echoPin, HIGH);
+  long distance = duration * 0.034 / 2; // Calculate distance in centimeters
+
+  return distance;
+}
